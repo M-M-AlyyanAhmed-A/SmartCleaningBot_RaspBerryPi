@@ -1,0 +1,167 @@
+<!-- smart_cleaning_bot/templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Cleaning Bot - Control Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet"> <!-- Using Google Fonts -->
+    <style>
+        :root {
+            --primary-color: #62929E; /* Muted Teal/Blue */
+            --secondary-color: #546A7B; /* Slate Gray */
+            --accent-color: #C6C5B9; /* Light Khaki/Beige */
+            --text-color: #393D3F; /* Dark Gray for text on light bg */
+            --light-bg-color: #F4F4F8; /* Very Light Gray/Off-white */
+            --container-bg-color: rgba(255, 255, 255, 0.9); /* Slightly transparent white */
+            --shadow-color: rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: url('{{ url_for('static', filename='1.jpg') }}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        .overlay { /* Optional: lightens the background image for better text readability if bg is dark */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.3); /* Light semi-transparent overlay */
+            z-index: -1;
+        }
+        .container {
+            background-color: var(--container-bg-color);
+            padding: 30px 40px;
+            border-radius: 10px; /* Slightly less rounded for "edgy" */
+            box-shadow: 0 8px 20px var(--shadow-color);
+            text-align: center;
+            max-width: 90%;
+            width: 750px; /* Increased width a bit */
+            border: 1px solid var(--accent-color);
+        }
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-size: 2.3em; /* Slightly smaller */
+            font-weight: 700; /* Bolder */
+            letter-spacing: 0.5px;
+        }
+        .video-stream-container {
+            margin-bottom: 25px;
+            border: 2px solid var(--primary-color);
+            border-radius: 6px; /* Edgy */
+            overflow: hidden;
+            display: inline-block;
+            background-color: #333; /* Dark fallback for video */
+            box-shadow: 0 4px 8px var(--shadow-color);
+        }
+        img#videoFeed {
+            display: block;
+            width: 100%;
+            max-width: 640px;
+            height: auto;
+            border-radius: 4px;
+        }
+        #status {
+            font-size: 1.1em;
+            margin-bottom: 25px;
+            padding: 12px;
+            background-color: var(--accent-color);
+            border-radius: 6px;
+            color: var(--secondary-color);
+            font-weight: 400;
+            min-height: 25px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .controls {
+            display: grid; /* Using grid for more structured layout */
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); /* Responsive columns */
+            gap: 15px;
+        }
+        .controls button {
+            color: white;
+            padding: 15px 20px; /* More padding */
+            border: none;
+            border-radius: 5px; /* Edgy */
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 700;
+            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smoother transition */
+            box-shadow: 0 3px 6px var(--shadow-color);
+            text-transform: uppercase; /* More formal */
+            letter-spacing: 0.5px;
+        }
+        .controls button:hover {
+            transform: translateY(-3px) scale(1.02); /* More interactive hover */
+            box-shadow: 0 6px 12px var(--shadow-color);
+        }
+        .controls button:active {
+            transform: translateY(-1px) scale(0.98); /* Press down effect */
+            box-shadow: 0 2px 4px var(--shadow-color);
+        }
+        .btn-off { background-color: #E57373; } /* Lighter Red */
+        .btn-off:hover { background-color: #EF5350; }
+        .btn-mode { background-color: #64B5F6; } /* Lighter Blue */
+        .btn-mode:hover { background-color: #42A5F5; }
+        .btn-smart { background-color: #81C784; } /* Lighter Green */
+        .btn-smart:hover { background-color: #66BB6A; }
+        .btn-vacuum { background-color: #FFB74D; } /* Lighter Orange */
+        .btn-vacuum:hover { background-color: #FFA726; }
+
+        .footer-text {
+            margin-top: 30px;
+            font-size: 0.85em;
+            color: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+    <div class="container">
+        <h1>Smart Cleaning Bot</h1>
+        <div class="video-stream-container">
+            <img id="videoFeed" src="{{ url_for('video_feed') }}" width="640" height="480" alt="Live Camera Feed">
+        </div>
+        <div id="status">Bot Status: {{ initial_bot_state | default("IDLE") }}</div>
+        <div class="controls">
+            <button class="btn-off" onclick="sendCommand('OFF')">Turn Off</button>
+            <button class="btn-mode" onclick="sendCommand('SIMPLE_CLEAN')">Simple Clean</button>
+            <button class="btn-smart" onclick="sendCommand('SMART_CLEAN')">Smart Clean</button>
+            <button class="btn-vacuum" onclick="sendCommand('TOGGLE_VACUUM')">Vacuum</button> <!-- Shorter name -->
+        </div>
+        <p class="footer-text">FYP - Control Panel</p>
+    </div>
+
+    <script>
+        async function sendCommand(action) {
+            // ... (JavaScript remains the same) ...
+            console.log("Sending command:", action);
+            try {
+                const response = await fetch("{{ url_for('control_bot_route') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: action })
+                });
+                const result = await response.json();
+                console.log("Server response:", result);
+                document.getElementById('status').innerText = result.status_message;
+            } catch (error) {
+                console.error('Error sending command:', error);
+                document.getElementById('status').innerText = 'Error: Could not connect to server.';
+            }
+        }
+    </script>
+</body>
+</html>
